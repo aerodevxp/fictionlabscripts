@@ -13,33 +13,33 @@
 (function() {
     'use strict';
 
-    let initialized = false;
+    const chatContainer = document.querySelector('.chat-container-content');
+    let lastCount = document.querySelectorAll('.box-chat').length;
+
+    if (!chatContainer) {
+        console.error('FictionLab Auto Scroll: Could not find chat container');
+        return;
+    }
 
     function scrollToBottom() {
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: 'smooth'
-        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
     setTimeout(() => {
-        initialized = true;
+        lastCount = document.querySelectorAll('.box-chat').length;
+        console.log('FictionLab Auto Scroll: Initialized with', lastCount, 'messages');
 
         const observer = new MutationObserver((mutations) => {
-            if (!initialized) return;
+            const currentCount = document.querySelectorAll('.box-chat').length;
 
-            for (const mutation of mutations) {
-                for (const node of mutation.addedNodes) {
-                    if (node.nodeType === 1) {
-                        if (node.classList?.contains('box-chat') || node.querySelector?.('.box-chat')) {
-                            scrollToBottom();
-                            break;
-                        }
-                    }
-                }
+            if (currentCount > lastCount) {
+                console.log('FictionLab Auto Scroll: New message detected, scrolling to bottom');
+                scrollToBottom();
+                lastCount = currentCount;
             }
         });
 
         observer.observe(document.body, { childList: true, subtree: true });
-    }, 1500);
+        console.log('FictionLab Auto Scroll: Observer started');
+    }, 1000);
 })();
